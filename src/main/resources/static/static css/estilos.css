@@ -1,0 +1,14 @@
+#tituloPrincipal {
+    color: red;
+}
+
+.parrafos {
+    text-align: center;
+    color: gold;
+    font-weight: bold;
+}
+
+.enfasis {
+    background-color: pink;
+    color: white;
+}
