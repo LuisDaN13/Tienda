@@ -7,10 +7,10 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "categoria")
-public class Categoria implements Serializable{
-    
+public class Categoria implements Serializable {
+
     private static final long serialVersionUID = 1L;   // Es para poner la version de Serializacion  
-            
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_categoria")
@@ -22,9 +22,9 @@ public class Categoria implements Serializable{
     public Categoria() {                               // Constructor Normal 
     }
 
-    public Categoria(String descripcion, String rutaImagen, boolean activo) {   //Constructor SobreCargado
+    public Categoria(String descripcion, String rutaImagen, boolean estado_vida) {
         this.descripcion = descripcion;
         this.rutaImagen = rutaImagen;
         this.activo = activo;
-    }    
+    }
 }
