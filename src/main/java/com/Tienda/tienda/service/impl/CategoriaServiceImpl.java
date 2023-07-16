@@ -44,4 +44,10 @@ public class CategoriaServiceImpl implements CategoriaService{
         categoriaDao.delete(categoria);
         //categoriaDao.deleteById(categoria.getCategoria);
     }
+
+    @Override
+    public List<Categoria> getPorDescripcion(String descripcion) {
+        return categoriaDao.findByDescripcion(descripcion);
+    }
 }
+ 

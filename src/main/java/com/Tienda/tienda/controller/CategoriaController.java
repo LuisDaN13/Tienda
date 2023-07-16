@@ -22,6 +22,9 @@ public class CategoriaController {
     @Autowired
     private CategoriaService categoriaService;
     
+    @Autowired
+    private FirebaseStorageServiceImpl firebaseStorageService;
+    
     @GetMapping("/listado")                             //Solo mediante peticiones GET
     public String page(Model model) {
         log.info("Consumo del Recurso /categoria/listado");
@@ -35,9 +38,6 @@ public class CategoriaController {
     public String categoriaNuevo(Categoria categoria) {
         return "/categoria/modifica";
     }
-
-    @Autowired
-    private FirebaseStorageServiceImpl firebaseStorageService;
     
     @PostMapping("/guardar")
     public String categoriaGuardar(Categoria categoria,
