@@ -19,5 +19,6 @@ public interface CategoriaService {
     public void delete(Categoria categoria);
     
     //Para buscar todo segun una descripcion
+    //No se tiene que llamar exactamente igual, en este caso se pone "getPorDescripcion"
     public List<Categoria> getPorDescripcion (String descripcion);
 }
