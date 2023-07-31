@@ -1,57 +1,79 @@
 package com.Tienda.tienda.service.impl;
 
+import com.Tienda.tienda.dao.RolDao;
 import com.Tienda.tienda.dao.UsuarioDao;
 import com.Tienda.tienda.domain.Rol;
 import com.Tienda.tienda.domain.Usuario;
 import com.Tienda.tienda.service.UsuarioService;
-import jakarta.servlet.http.HttpSession;
-import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service("userDetailsService")
-public class UsuarioServiceImpl implements UsuarioService{
+@Service
+public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private UsuarioDao usuarioDao;
-    
+
     @Autowired
-    private HttpSession session;
-    
+    private RolDao rolDao;
+
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        //Aqui busca el usuario en la base de datos
-        Usuario usuario = usuarioDao.findByUsername(username);
-        //Si el usuario no existe lanza la excepcion
-        if(usuario == null) {
-            throw new UsernameNotFoundException(username);
-        }
-        
-        //en caso de ya existir el atributo setiado
-        session.removeAttribute("usuarioImagen");
-        //luego crea el atributo con su respectivo contenido, en este caso seria la ruta de imagen del usuario
-        session.setAttribute("usuarioImagen", usuario.getRutaImagen());
-        
-        /* FORMA DE USARLO DE OTRA MANERA
-        List<Rol> roles = usuario.getRoles();*/
-        
-        //FORMA DEL PROFESOR
-        var roles = new ArrayList<GrantedAuthority>();
-        
-        for (Rol rol : usuario.getRoles()) {
-            roles.add(new SimpleGrantedAuthority(rol.getNombre()));
-        }
-        
-        //necesitamos retornar un objeto de tipo "User" con los datos que necesitamos
-        return new User(usuario.getUsername(), usuario.getPassword(), roles);
+    public List<Usuario> getUsuarios() {
+        return usuarioDao.findAll();
     }
-    
+
+    // ----------------------------------------------------------------------------------
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario getUsuario(Usuario usuario) {
+        return usuarioDao.findById(usuario.getIdUsuario()).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario getUsuarioPorUsername(String username) {
+        return usuarioDao.findByUsername(username);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario getUsuarioPorUsernameYPassword(String username, String password) {
+        return usuarioDao.findByUsernameAndPassword(username, password);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Usuario getUsuarioPorUsernameOCorreo(String username, String correo) {
+        return usuarioDao.findByUsernameOrCorreo(username, correo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existeUsuarioPorUsernameOCorreo(String username, String correo) {
+        return usuarioDao.existsByUsernameOrCorreo(username, correo);
+    }
+
+    @Override
+    @Transactional
+    public void save(Usuario usuario, boolean crearRolUser) {
+        //aqui guarda primero el idUsuario
+        usuario = usuarioDao.save(usuario);
+        
+        //ya teniendo el idUsuario podemos asignarle un role y guardarlo
+        if (crearRolUser) {  // PROFE: Si se está creando el usuario, se crea el rol por defecto "USER"
+            Rol rol = new Rol();
+            rol.setNombre("ROLE_USER");
+            rol.setIdUsuario(usuario.getIdUsuario());
+            rolDao.save(rol);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void delete(Usuario usuario) {
+        usuarioDao.delete(usuario);
+    }
 }
