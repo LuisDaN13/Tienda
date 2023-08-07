@@ -37,8 +37,16 @@ public class UsuarioController {
     }
 
     @PostMapping("/guardar")
-    public String usuarioGuardar(Usuario usuario, @RequestParam("imagenFile") MultipartFile imagenFile) {
-        usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+    public String usuarioGuardar(Usuario usuario,
+            @RequestParam("imagenFile") MultipartFile imagenFile) {
+        if (usuario.getIdUsuario() != null && usuario.getIdUsuario() > 0) {
+            var temp = usuarioService.getUsuario(usuario);
+            usuario.setPassword(temp.getPassword());
+            usuario.setUsername(temp.getUsername());
+            usuario.setRoles(temp.getRoles());
+        } else {
+            usuario.setPassword(new BCryptPasswordEncoder().encode(usuario.getPassword()));
+        }
         if (!imagenFile.isEmpty()) {
             usuarioService.save(usuario, false);
             usuario.setRutaImagen(
@@ -47,7 +55,11 @@ public class UsuarioController {
                             "usuario",
                             usuario.getIdUsuario()));
         }
-        usuarioService.save(usuario, true);
+        if (usuario.getRoles() == null) {
+            usuarioService.save(usuario, true);
+        } else {
+            usuarioService.save(usuario, false);
+        }
         return "redirect:/usuario/listado";
     }
 
